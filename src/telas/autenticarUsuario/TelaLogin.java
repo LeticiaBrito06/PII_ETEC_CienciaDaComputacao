@@ -82,7 +82,7 @@ public class TelaLogin extends JFrame{
         botaoLogin.addActionListener((ActionEvent evento) -> validarLogin());
         formularioLogin.add(botaoLogin);
 
-        JLabel criarConta = new JLabel ("Não tem uma conta? Crie agora!", SwingConstants.CENTER);
+        JLabel criarConta = new JLabel ("Não tem uma conta Professor? Crie agora!", SwingConstants.CENTER);
         criarConta.setBounds(35, 410, 340, 25);
         criarConta.setFont(new Font("Verdana", Font.PLAIN, 25));
         criarConta.setForeground(new Color(47, 76, 113));
