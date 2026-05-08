@@ -1,4 +1,4 @@
-package telas.autenticar usuário;
+package src.telas.autenticarUsuario;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -24,7 +24,7 @@ public class TelaLogin extends JFrame{
     }
 
     private void montarComponentes(){
-        PainelFundo painelFundo = new PainelFundo();
+        FundoTela painelFundo = new FundoTela();
         painelFundo.setLayout(null);
         setContentPane(painelFundo);
 
@@ -90,34 +90,7 @@ public class TelaLogin extends JFrame{
         formularioLogin.add(criarConta);
     }
 
-    private void validarLogin() {
-        // Implementar validação de login
-    }
-
     // Classes Customizadas para User Interface
-    private class PainelFundo extends JPanel {
-        private int raio;
-
-        public PainelFundo() {
-            this(0);
-        }
-
-        public PainelFundo(int raio) {
-            this.raio = raio;
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(getBackground());
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), raio, raio);
-            g2d.dispose();
-            super.paintComponent(g);
-        }
-    }
-
     private static class FormularioLogin extends JPanel {
         private int raio;
 
@@ -277,5 +250,39 @@ public class TelaLogin extends JFrame{
         if (emailAluno(emailString)){
             JOptionPane.showMessageDialog(this, "Login de aluno identificado com sucesso.", "Aluno", JOptionPane.INFORMATION_MESSAGE);
         }
+
+        else if (emailProfessor(emailString)){
+            JOptionPane.showMessageDialog(this, "Login de professor identificado com sucesso.", "Professor", JOptionPane.INFORMATION_MESSAGE);
+        } 
+        
+        else {
+            JOptionPane.showMessageDialog(this, "E-mail institucional inválido!", "E-mail inválido", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private boolean emailAluno(String email) {
+        return email.endsWith("@aluno.cps.sp.edu.br");
+    }
+
+    private boolean emailProfessor(String email) {
+        return email.endsWith("@cps.sp.edu.br");
+    }
+
+    private void abrirTelaPrincipalAluno () {
+        // Quando a tela aluno tiver pronta usa
+        // new telas.aluno.TelaPrincipalAluno().setVisible(true);
+        // dispose();
+    }
+
+    private void abrirTelaPrincipalProfessor () {
+        // Quando a tela professor tiver pronta usa
+        // new telas.professor.TelaPrincipalProfessor().setVisible(true);
+        // dispose();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new TelaLogin().setVisible(true);
+        });
     }
 }
