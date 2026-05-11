@@ -2,6 +2,7 @@ package src.telas.autenticarUsuario;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.net.URL;
 import javax.swing.*;
 
 public class TelaLogin extends JFrame{
@@ -11,93 +12,133 @@ public class TelaLogin extends JFrame{
     private JCheckBox lembrarMeSenha;
 
     public TelaLogin (){
+        configurarLookAndFeel();
         configurarJanela();
         montarComponentes();
+    }
+
+    private void configurarLookAndFeel(){
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            System.err.println("Erro ao configurar o look and feel: " + e.getMessage());
+        }
     }
 
     private void configurarJanela(){
         setTitle("LabTech - Login");
         setSize(960, 680);
+        setMinimumSize(new Dimension(600, 480)); //Tamanho mínimo de tela
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(true); //Para poder redimencionar a tela
     }
 
     private void montarComponentes(){
         FundoTela painelFundo = new FundoTela();
-        painelFundo.setLayout(null);
+        painelFundo.setLayout(new GridBagLayout()); //Para centralizar o formulário
         setContentPane(painelFundo);
 
         //Formulário de Login
         FormularioLogin formularioLogin = new FormularioLogin(30);
-        formularioLogin.setLayout(null);
-        formularioLogin.setBounds(275, 135, 410, 480);
+        formularioLogin.setLayout(new GridBagLayout());
         formularioLogin.setBackground(Color.WHITE);
-        painelFundo.add(formularioLogin);
+        formularioLogin.setPreferredSize(new Dimension(410, 480));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 45, 0, 45); //Para as margens laterais
+
+        //Título do formulário
         JLabel titulo = new JLabel("LABTECH", SwingConstants.CENTER);
-        titulo.setBounds(35, 30, 340, 80);
-        titulo.setFont(new Font("Vernada", Font.BOLD, 62));
+        titulo.setFont(new Font("Verdana", Font.BOLD, 52));
         titulo.setForeground(new Color(47, 76, 113));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(30, 20, 30, 20); //Margem superior e inferior
         formularioLogin.add(titulo);
 
+
+        //Campo de E-mail
         JLabel email = new JLabel("E-mail institucional:");
-        email.setBounds(45, 125, 250, 25);
-        email.setFont (new Font("Vernada", Font.PLAIN, 15));
-        email.setBackground(new Color(47, 76, 113));
-        formularioLogin.add(email);
+        email.setFont (new Font("Verdana", Font.PLAIN, 15));
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 45, 5, 45); //Margem entre o título e o campo de email
+        formularioLogin.add(email, gbc);
 
         espacoEmail = new EspacoEmailTexto(15);
-        espacoEmail.setBounds(45, 150, 326, 45);
         espacoEmail.setFont(new Font("Verdana", Font.PLAIN, 15));
         espacoEmail.setBackground(new Color(245, 247, 251));
-        formularioLogin.add(espacoEmail);
+        espacoEmail.setPreferredSize(new Dimension(326, 45));
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 45, 0, 45); //Margem entre o campo de email e a senha
+        formularioLogin.add(espacoEmail, gbc);
 
+
+        //Campo de Senha
         JLabel senha = new JLabel ("Senha:");
-        senha.setBounds(45, 205, 250, 25);
         senha.setFont(new Font("Verdana", Font.PLAIN, 15));
-        senha.setBackground(new Color(245, 247, 251));
-        formularioLogin.add(senha);
+        gbc.gridy = 3;
+        gbc.insets = new Insets(10, 45, 5, 45); //Margem entre o campo de email e a senha
+        formularioLogin.add(senha, gbc);
 
         espacoSenha = new espacoSenhaTexto(15);
-        espacoSenha.setBounds(45, 230, 326, 45);
         espacoSenha.setFont(new Font("Verdana", Font.PLAIN, 15));
         espacoSenha.setBackground(new Color(245, 247, 251));
-        formularioLogin.add(espacoSenha);
+        gbc.gridy = 4;
+        gbc.insets = new Insets(0, 45, 0, 45); //Margem entre o campo de senha e o checkbox de lembrar senha
+        formularioLogin.add(espacoSenha, gbc);
+
+        //Lembrar senha e Esqueci minha senha
+        JPanel painelOpcoesSenha = new JPanel(new BorderLayout());
+        painelOpcoesSenha.setOpaque(false);
 
         lembrarMeSenha = new JCheckBox("Lembrar minha senha");
-        lembrarMeSenha.setBounds(45, 280, 250, 25);
         lembrarMeSenha.setFont(new Font("Verdana", Font.PLAIN, 15));
-        lembrarMeSenha.setBackground(new Color(245, 247, 251));
-        formularioLogin.add(lembrarMeSenha);
+        lembrarMeSenha.setOpaque(false);
+        lembrarMeSenha.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JLabel esqueceuSenha = new JLabel("Esqueci minha senha!");
-        esqueceuSenha.setBounds(230, 290, 150, 25);
         esqueceuSenha.setFont(new Font("Verdana", Font.PLAIN, 15));
         esqueceuSenha.setForeground(new Color(150, 40, 27));
-        formularioLogin.add(esqueceuSenha);
+        esqueceuSenha.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        painelOpcoesSenha.add(lembrarMeSenha, BorderLayout.WEST);
+        painelOpcoesSenha.add(esqueceuSenha, BorderLayout.EAST);
+
+        gbc.gridy = 5;
+        gbc.insets = new Insets(10, 45, 10, 45);
+        formularioLogin.add(painelOpcoesSenha, gbc);
+
+        //Botão de Entrar
         BotaoEntrar botaoLogin = new BotaoEntrar("Entrar", 15);
-        botaoLogin.setBounds(45, 350, 326, 45);
+        botaoLogin.setPreferredSize(new Dimension(326, 45));
+        gbc.gridy = 6;
         botaoLogin.addActionListener((ActionEvent evento) -> validarLogin());
-        formularioLogin.add(botaoLogin);
+        gbc.insets = new Insets(20, 45, 10, 45); //Margem entre o checkbox e o botão de entrar
+        formularioLogin.add(botaoLogin, gbc);
 
+        //Link para criar conta
         JLabel criarConta = new JLabel ("Não tem uma conta Professor? Crie agora!", SwingConstants.CENTER);
-        criarConta.setBounds(35, 410, 340, 25);
-        criarConta.setFont(new Font("Verdana", Font.PLAIN, 25));
+        criarConta.setFont(new Font("Verdana", Font.PLAIN, 13));
         criarConta.setForeground(new Color(47, 76, 113));
         criarConta.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        formularioLogin.add(criarConta);
+        gbc.gridy = 7;
+        gbc.insets = new Insets(0, 20, 30, 20);
+        formularioLogin.add(criarConta, gbc);
+
+        //Adiciona o formulário ao painel de fundo
+        painelFundo.add(formularioLogin, new GridBagConstraints());
     }
 
     // Classes Customizadas para User Interface
     private static class FormularioLogin extends JPanel {
-        private int raio;
+        private final int raio;
 
         public FormularioLogin(int raio) {
             this.raio = raio;
             setOpaque(false);
-            setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
         }
 
         @Override
@@ -114,7 +155,7 @@ public class TelaLogin extends JFrame{
     }
 
     private static class EspacoEmailTexto extends JTextField {
-        private int raio;
+        private final int raio;
 
         public EspacoEmailTexto(int raio) {
             this.raio = raio;
@@ -136,7 +177,7 @@ public class TelaLogin extends JFrame{
     }
 
     private static class espacoSenhaTexto extends JPasswordField {
-        private int raio;
+        private final int raio;
 
         public espacoSenhaTexto(int raio) {
             this.raio = raio;
@@ -158,7 +199,7 @@ public class TelaLogin extends JFrame{
     }
 
     private static class BotaoEntrar extends JButton {
-        private int raio;
+        private final int raio;
 
         public BotaoEntrar(String texto, int raio) {
             super(texto);
@@ -189,7 +230,12 @@ public class TelaLogin extends JFrame{
         public FundoTela() {
             try {
                 // Carrega a imagem de fundo menu.png
-                imagemFundo = new ImageIcon("imagens/menu.png").getImage();
+                URL urlImagem = getClass().getResource("/imagens/menu.png");
+                if (urlImagem != null) {
+                    imagemFundo = new ImageIcon(urlImagem).getImage();
+                } else {
+                    System.err.println("Imagem de fundo não encontrada no classpath: /imagens/menu.png");
+                }
             } catch (Exception e) {
                 System.err.println("Erro ao carregar imagem de fundo: " + e.getMessage());
             }
@@ -213,9 +259,7 @@ public class TelaLogin extends JFrame{
 
                 if (larguraImagem > 0 && alturaImagem > 0) {
                     // Calcula a escala para cobrir todo o painel mantendo a proporção (tipo "cover")
-                    double escalaX = (double) larguraPainel / larguraImagem;
-                    double escalaY = (double) alturaPainel / alturaImagem;
-                    double escala = Math.max(escalaX, escalaY);
+                    double escala = Math.max((double) larguraPainel / larguraImagem, (double) alturaPainel  / alturaImagem);
 
                     int novaLargura = (int) (larguraImagem * escala);
                     int novaAltura = (int) (alturaImagem * escala);
@@ -230,7 +274,8 @@ public class TelaLogin extends JFrame{
                     g2.drawImage(imagemFundo, 0, 0, larguraPainel, alturaPainel, this);
                 }
             } else {
-                g2.setColor(new Color(223, 239, 252));
+                GradientPaint gradiente = new GradientPaint(0, 0, new Color(223, 239, 252), getWidth(), getHeight(), new Color(47, 76, 113));
+                g2.setPaint(gradiente);
                 g2.fillRect(0, 0, getWidth(), getHeight());
             }
             
@@ -281,8 +326,7 @@ public class TelaLogin extends JFrame{
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new TelaLogin().setVisible(true);
-        });
+        System.setProperty("sun.java2d.uiScale.enabled", "true");
+        SwingUtilities.invokeLater(() -> new TelaLogin().setVisible(true));
     }
 }
