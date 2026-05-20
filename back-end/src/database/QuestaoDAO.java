@@ -15,8 +15,7 @@ public class QuestaoDAO {
                 INSERT INTO questao (enunciado, tipo, nivel_dificuldade, categoria, imagem_url, id_professor)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
-
-        Connection con = Conexao.getConnection();
+        Connection con = Conexao.conectar();
         con.setAutoCommit(false);
  
         try (PreparedStatement ps = con.prepareStatement(sqlQuestao, Statement.RETURN_GENERATED_KEYS)) {
@@ -80,7 +79,7 @@ public class QuestaoDAO {
     public Questao buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM questao WHERE id = ? AND ativa = TRUE";
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
  
             ps.setInt(1, id);
@@ -100,7 +99,7 @@ public class QuestaoDAO {
         String sql = "SELECT * FROM questao WHERE nivel_dificuldade = ? AND ativa = TRUE ORDER BY RAND()";
         List<Questao> lista = new ArrayList<>();
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
  
             ps.setString(1, nivel.name());
@@ -120,7 +119,7 @@ public class QuestaoDAO {
         String sql = "SELECT * FROM questao WHERE ativa = TRUE ORDER BY nivel_dificuldade, id";
         List<Questao> lista = new ArrayList<>();
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
  
@@ -138,7 +137,7 @@ public class QuestaoDAO {
         String sql = "SELECT * FROM questao WHERE id_professor = ? AND ativa = TRUE ORDER BY id DESC";
         List<Questao> lista = new ArrayList<>();
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
  
             ps.setInt(1, idProfessor);
@@ -178,7 +177,7 @@ public class QuestaoDAO {
                  WHERE id = ?
                 """;
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
  
             ps.setString(1, questao.getEnunciado());
@@ -195,7 +194,7 @@ public class QuestaoDAO {
     public boolean desativar(int idQuestao) throws SQLException {
         String sql = "UPDATE questao SET ativa = FALSE WHERE id = ?";
  
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
  
             ps.setInt(1, idQuestao);

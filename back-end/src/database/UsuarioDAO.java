@@ -17,7 +17,7 @@ public class UsuarioDAO {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, usuario.getNome());
             ps.setString(2, usuario.getEmail());
@@ -47,7 +47,7 @@ public class UsuarioDAO {
     // Busca qualquer usuário ativo pelo id. Retorna Aluno ou Professor conforme o tipo.
     public Usuario buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM usuario WHERE id = ? AND ativo = TRUE";
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -63,7 +63,7 @@ public class UsuarioDAO {
     public Usuario buscarPorEmail(String email) throws SQLException {
         String sql = "SELECT * FROM usuario WHERE email = ? AND ativo = TRUE";
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, email);
@@ -81,7 +81,7 @@ public class UsuarioDAO {
         String sql = "SELECT * FROM usuario WHERE tipo = 'ALUNO' AND ativo = TRUE ORDER BY nome";
         List<Aluno> lista = new ArrayList<>();
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -97,7 +97,7 @@ public class UsuarioDAO {
         String sql = "SELECT * FROM usuario WHERE tipo = 'PROFESSOR' AND ativo = TRUE ORDER BY nome";
         List<Professor> lista = new ArrayList<>();
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -112,7 +112,7 @@ public class UsuarioDAO {
     public String buscarSaltPorEmail(String email) throws SQLException {
         String sql = "SELECT salt FROM usuario WHERE email = ? AND ativo = TRUE";
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, email);
@@ -133,7 +133,7 @@ public class UsuarioDAO {
                  WHERE id = ?
                 """;
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario.getNome());
@@ -156,7 +156,7 @@ public class UsuarioDAO {
     public boolean atualizarSenha(int idUsuario, String novaSenhaHash) throws SQLException {
         String sql = "UPDATE usuario SET senha = ? WHERE id = ?";
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, novaSenhaHash);
@@ -169,7 +169,7 @@ public class UsuarioDAO {
     public boolean desativar(int id) throws SQLException {
         String sql = "UPDATE usuario SET ativo = FALSE WHERE id = ?";
 
-        try (Connection con = Conexao.getConnection();
+        try (Connection con = Conexao.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
