@@ -17,7 +17,7 @@ public class Resposta {
         this.questao = questao;
         this.alternativaEscolhida = alternativaEscolhida;
         this.tempoResposta = tempoResposta;
-        this.correta = validar();
+        this.correta = (alternativaEscolhida != null && questao != null) ? alternativaEscolhida.isECorreta() : false;
     }
 
     // Valida se a resposta escolhida é correta ou não.

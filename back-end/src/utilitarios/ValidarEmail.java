@@ -1,8 +1,8 @@
 package utilitarios;
 public class ValidarEmail{
     // Emails aceitos
-    private static final String Dominio_Aluno = "@aluno.cps.sp.gov.br";
-    private static final String Dominio_Professor = "@cps.sp.gov.br";
+    private static final String DOMINIO_ALUNO = "@aluno.cps.sp.gov.br";
+    private static final String DOMINIO_PROFESSOR = "@cps.sp.gov.br";
 
     private ValidarEmail(){}
     
@@ -12,7 +12,7 @@ public class ValidarEmail{
             return false;
         }
         String emailLower = email.trim().toLowerCase();
-        return emailLower.endsWith(Dominio_Aluno) || emailLower.endsWith(Dominio_Professor);
+        return emailLower.endsWith(DOMINIO_ALUNO) || emailLower.endsWith(DOMINIO_PROFESSOR);
     }
 
 
@@ -21,7 +21,7 @@ public class ValidarEmail{
         if (email == null || email.isEmpty()) {
             return false;
         }
-        return email.trim().toLowerCase().endsWith(Dominio_Aluno);
+        return email.trim().toLowerCase().endsWith(DOMINIO_ALUNO);
     }
 
     // Verificar se o e-mail é de um professor
@@ -30,7 +30,7 @@ public class ValidarEmail{
             return false;
         }
         String emailLower = email.trim().toLowerCase();
-        return emailLower.endsWith(Dominio_Professor) && !emailLower.endsWith(Dominio_Aluno);   
+        return emailLower.endsWith(DOMINIO_PROFESSOR) && !emailLower.endsWith(DOMINIO_ALUNO);   
     }
 
     // Retornar mensagem de erro para e-mail inválido

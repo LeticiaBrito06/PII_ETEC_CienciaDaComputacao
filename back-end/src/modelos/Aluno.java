@@ -1,7 +1,6 @@
 package modelos;
 import java.util.ArrayList;
 import java.util.List;
-
 import modelos.tipos.TipoUsuario;
 
 public class Aluno extends Usuario {
@@ -16,7 +15,6 @@ public class Aluno extends Usuario {
     public Aluno() {
         super();
         this.historicoPartidas = new ArrayList<>();
-        setTipo(TipoUsuario.ALUNO);
     }
  
     public Aluno(int id, String nome, String email, String senha, String turma, String ra) {

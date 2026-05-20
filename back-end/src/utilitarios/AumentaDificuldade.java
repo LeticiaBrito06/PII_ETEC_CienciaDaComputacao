@@ -2,8 +2,8 @@ package utilitarios;
 import modelos.tipos.NivelDificuldade;
 
 public class AumentaDificuldade {
-    private static final int Limite_Aumentar = 3;
-    private static final int Limite_Diminuir = 3;
+    private static final int LIMITE_AUMENTAR = 3;
+    private static final int LIMITE_DIMINUIR = 3;
 
     private AumentaDificuldade(){}
 
@@ -13,9 +13,9 @@ public class AumentaDificuldade {
         if (nivelAtual == null){
             return NivelDificuldade.FACIL;
         }
-        if (acertosConsecutivos >= Limite_Aumentar) {
+        if (acertosConsecutivos >= LIMITE_AUMENTAR) {
             return subirNivel(nivelAtual);
-        } else if (errosConsecutivos >= Limite_Diminuir) {
+        } else if (errosConsecutivos >= LIMITE_DIMINUIR) {
             return descerNivel(nivelAtual);
         } else {
             return nivelAtual;
