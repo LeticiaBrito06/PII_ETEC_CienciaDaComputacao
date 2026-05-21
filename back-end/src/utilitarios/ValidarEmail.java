@@ -7,7 +7,7 @@ public class ValidarEmail{
     private ValidarEmail(){}
     
     //Verificar se o e-mail é valido    
-    public static boolean EmailValido(String email){
+    public static boolean emailValido(String email){
         if (email == null || email.isEmpty()) {
             return false;
         }
@@ -38,7 +38,7 @@ public class ValidarEmail{
         if (email == null || email.isEmpty()) {
             return "O campo de e-mail não pode estar vazio.";
         }
-        if (!EmailValido(email)) {
+        if (!emailValido(email)) {
             return "E-mail inválido. Use seu e-mail institucional.";
         }
         return null;

@@ -18,7 +18,7 @@ public class Conexao {
             return conn;
 
         } catch (SQLException e) {
-            System.err.println("Erro ao conectar com o banco!");
+            System.out.println("Erro ao conectar com o banco!");
             System.err.println(e.getMessage());
             return null;
         }
