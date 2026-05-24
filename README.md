@@ -23,4 +23,4 @@ Projeto acadêmico sem fins lucrativos desenvolvido em parceria com a Etec Júli
 * __Banco de dados:__ MySQL.
 
 > ### Agradecimento
-Agradecemos imensamente todo o suporte oferecido pelo professor e orientador Rudolf Theoderich Buhler durante o desenvolvimento do projeto.
+Agradecemos imensamente todo o suporte oferecido pelo professor Evandro Catelani Ferraz e pelos orientadores Rudolf Theoderich Buhler e Alexsander Tressino de Carvalho durante o desenvolvimento do projeto.
