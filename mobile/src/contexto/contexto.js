@@ -7,10 +7,9 @@ import {
 } from '../servicos/servicoAutenticacao';
 
 //Estado e Reducer
-
 const estadoInicial = {
   token: null,
-  usuario: null, // { id, nome, email, tipo, turma?, ra? }
+  usuario: null, // { id, nome, email, tipo, turma, ra }
   carregando: true, // true enquanto AsyncStorage não foi lido
   erro: null,
 };
@@ -33,7 +32,6 @@ function reducer(state, action) {
 }
 
 // Contexto
-
 const ContextoAuth = createContext(null);
 
 export function ProviderAutenticacao({ children }) {
