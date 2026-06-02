@@ -1,0 +1,284 @@
+-- Bianca Gorges Santana, Giovanna Nelli Martins e Letícia Brito dos Santos
+SHOW DATABASES;
+-- Cria e seleciona o banco
+DROP DATABASE IF EXISTS etec_game;
+CREATE DATABASE IF NOT EXISTS etec_game CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE etec_game;
+
+-- TABELA: usuario
+CREATE TABLE IF NOT EXISTS usuario (
+    id INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL, -- hash SHA-256
+    salt VARCHAR(100) NOT NULL,	-- salt único por usuário
+    tipo ENUM('ALUNO', 'PROFESSOR') NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT pk_usuario PRIMARY KEY (id)
+);
+
+-- TABELA: material_laboratorio
+CREATE TABLE IF NOT EXISTS material_laboratorio (
+    id INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT NULL,
+    categoria VARCHAR(80) NOT NULL,
+    funcao TEXT NULL,
+    imagem_url VARCHAR(300) NULL, -- caminho/URL do arquivo
+    imagem_blob LONGBLOB NULL, -- imagem diretamente no banco
+
+    CONSTRAINT pk_material PRIMARY KEY (id)
+);
+
+-- TABELA: sistema_experimental
+CREATE TABLE IF NOT EXISTS sistema_experimental (
+    id INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT NULL,
+    imagem_url VARCHAR(300) NULL,
+    imagem_blob LONGBLOB NULL,
+
+    CONSTRAINT pk_sistema PRIMARY KEY (id)
+);
+
+-- TABELA: sistema_material (N:N)
+CREATE TABLE IF NOT EXISTS sistema_material (
+    id_sistema INT NOT NULL,
+    id_material INT NOT NULL,
+
+    CONSTRAINT pk_sistema_material PRIMARY KEY (id_sistema, id_material),
+    CONSTRAINT fk_sm_sistema FOREIGN KEY (id_sistema) REFERENCES sistema_experimental(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sm_material FOREIGN KEY (id_material) REFERENCES material_laboratorio(id) ON DELETE CASCADE
+);
+
+-- TABELA: questao
+CREATE TABLE IF NOT EXISTS questao (
+    id INT NOT NULL AUTO_INCREMENT,
+    enunciado TEXT NOT NULL,
+    tipo ENUM('MULTIPLA_ESCOLHA', 'ASSOCIACAO') NOT NULL,
+    nivel_dificuldade ENUM('FACIL', 'MEDIO', 'DIFICIL') NOT NULL,
+    categoria VARCHAR(80) NULL,
+    imagem_url VARCHAR(300) NULL,
+    id_professor INT NOT NULL,
+    ativa BOOLEAN NOT NULL DEFAULT TRUE,
+    criada_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT pk_questao PRIMARY KEY (id),
+    CONSTRAINT fk_questao_prof FOREIGN KEY (id_professor) REFERENCES usuario(id) ON DELETE RESTRICT
+);
+
+-- TABELA: alternativa
+-- CORREÇÃO: removido o campo "errada" (redundante com e_correta = FALSE)
+CREATE TABLE IF NOT EXISTS alternativa (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_questao INT NOT NULL,
+    texto TEXT NOT NULL,
+    e_correta BOOLEAN NOT NULL DEFAULT FALSE,
+    imagem_url VARCHAR(300) NULL,
+    imagem_blob LONGBLOB NULL,
+
+    CONSTRAINT pk_alternativa PRIMARY KEY (id),
+    CONSTRAINT fk_alt_questao FOREIGN KEY (id_questao) REFERENCES questao(id) ON DELETE CASCADE
+);
+
+-- TABELA: partida
+CREATE TABLE IF NOT EXISTS partida (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_aluno INT NOT NULL,
+    data_hora_inicio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_hora_fim DATETIME NULL,
+    pontuacao INT NOT NULL DEFAULT 0,
+    nivel_atual ENUM('FACIL', 'MEDIO', 'DIFICIL') NOT NULL DEFAULT 'FACIL',
+    finalizada BOOLEAN NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT pk_partida PRIMARY KEY (id),
+    CONSTRAINT fk_partida_aluno FOREIGN KEY (id_aluno) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
+-- TABELA: resposta
+CREATE TABLE IF NOT EXISTS resposta (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_partida INT NOT NULL,
+    id_questao INT NOT NULL,
+    id_alternativa INT NOT NULL, -- alternativa escolhida pelo aluno
+    correta BOOLEAN NOT NULL,
+    CONSTRAINT pk_resposta PRIMARY KEY (id),
+    CONSTRAINT fk_resp_partida FOREIGN KEY (id_partida) REFERENCES partida(id) ON DELETE CASCADE,
+    CONSTRAINT fk_resp_questao FOREIGN KEY (id_questao) REFERENCES questao(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_resp_alternativa FOREIGN KEY (id_alternativa) REFERENCES alternativa(id) ON DELETE RESTRICT
+);
+
+-- TABELA: desempenho
+-- ATENÇÃO: nunca atualizar esta tabela diretamente.
+-- Sempre usar a procedure sp_atualizar_desempenho para garantir consistência.
+CREATE TABLE IF NOT EXISTS desempenho (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_aluno INT NOT NULL UNIQUE,
+    total_partidas INT NOT NULL DEFAULT 0,
+    total_acertos INT NOT NULL DEFAULT 0,
+    total_erros INT NOT NULL DEFAULT 0,
+    percentual_acerto DOUBLE NOT NULL DEFAULT 0.0,
+    nivel_medio ENUM('FACIL', 'MEDIO', 'DIFICIL') NOT NULL DEFAULT 'FACIL',
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT pk_desempenho PRIMARY KEY (id),
+    CONSTRAINT fk_desempenho_aluno FOREIGN KEY (id_aluno) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
+-- TABELA: relatorio
+CREATE TABLE IF NOT EXISTS relatorio (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_aluno INT  NOT NULL,
+    id_professor INT  NOT NULL,
+    data_geracao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    periodo_inicio DATE NULL,
+    periodo_fim DATE NULL,
+
+    CONSTRAINT pk_relatorio PRIMARY KEY (id),
+    CONSTRAINT fk_rel_aluno FOREIGN KEY (id_aluno) REFERENCES usuario(id) ON DELETE CASCADE,
+    CONSTRAINT fk_rel_professor FOREIGN KEY (id_professor) REFERENCES usuario(id) ON DELETE RESTRICT
+);
+
+-- ÍNDICES
+CREATE INDEX idx_usuario_email ON usuario(email);
+CREATE INDEX idx_usuario_tipo ON usuario(tipo);
+CREATE INDEX idx_questao_nivel ON questao(nivel_dificuldade);
+CREATE INDEX idx_questao_tipo ON questao(tipo);
+CREATE INDEX idx_questao_ativa ON questao(ativa);
+CREATE INDEX idx_partida_aluno ON partida(id_aluno);
+CREATE INDEX idx_partida_finalizada ON partida(finalizada);
+CREATE INDEX idx_resposta_partida ON resposta(id_partida);
+CREATE INDEX idx_resposta_questao ON resposta(id_questao);
+
+-- DADOS INICIAIS — professor e aluno de teste
+-- (senhas: "professor123" e "aluno123" — apenas para testes)
+INSERT INTO usuario (nome, email, senha, salt, tipo) VALUES
+(
+    'Professor Teste',
+    'professor@cps.sp.gov.br',
+    'dxYZCj0kw7jeGlwRj65LBNvLHuMlYnsXsPc2vXTqyHU=',
+    'saltProfessorTeste001', -- salt único por usuário
+    'PROFESSOR'
+),
+(
+    'Aluno Teste',
+    'aluno@aluno.cps.sp.gov.br',
+    'kI3cKtVpYwnPJPr6ECGWbICwQNcAg9JbgnnRmNdmXgs=',
+    'saltAlunoTeste002', -- salt único por usuário
+    'ALUNO'
+);
+
+-- Cria o desempenho inicial zerado para o(s) aluno(s) de teste
+INSERT INTO desempenho (id_aluno, total_partidas, total_acertos, total_erros) SELECT id, 0, 0, 0 FROM usuario WHERE tipo = 'ALUNO';
+
+-- VIEW: resumo de desempenho de todos os alunos (para o professor)
+CREATE OR REPLACE VIEW vw_desempenho_alunos AS
+    SELECT
+        u.id AS id_aluno,
+        u.nome AS nome_aluno,
+        u.email AS email_aluno,
+        d.total_partidas,
+        d.total_acertos,
+        d.total_erros,
+        d.percentual_acerto,
+        d.nivel_medio,
+        d.atualizado_em
+    FROM usuario u INNER JOIN desempenho d ON d.id_aluno = u.id WHERE u.tipo = 'ALUNO' ORDER BY d.percentual_acerto DESC;
+
+-- VIEW: histórico completo de respostas de uma partida
+CREATE OR REPLACE VIEW vw_historico_partida AS
+    SELECT
+        p.id AS id_partida,
+        u.nome AS nome_aluno,
+        p.data_hora_inicio,
+        p.data_hora_fim,
+        p.pontuacao,
+        p.nivel_atual,
+        q.enunciado AS pergunta,
+        q.nivel_dificuldade,
+        a.texto AS alternativa_escolhida,
+        r.correta
+    FROM resposta r INNER JOIN partida p ON p.id = r.id_partida INNER JOIN usuario u ON u.id = p.id_aluno
+    INNER JOIN questao q ON q.id = r.id_questao INNER JOIN alternativa a ON a.id = r.id_alternativa ORDER BY p.id, r.id;
+
+-- VIEW: banco de questões ativas com total de alternativas
+CREATE OR REPLACE VIEW vw_questoes_ativas AS
+    SELECT
+        q.id,
+        q.enunciado,
+        q.tipo,
+        q.nivel_dificuldade,
+        q.categoria,
+        q.imagem_url,
+        u.nome AS cadastrada_por,
+        q.criada_em,
+        COUNT(a.id) AS total_alternativas
+    FROM questao q INNER JOIN usuario u ON u.id = q.id_professor LEFT JOIN alternativa a ON a.id_questao = q.id WHERE q.ativa = TRUE 
+    GROUP BY q.id, q.enunciado, q.tipo, q.nivel_dificuldade, q.categoria, q.imagem_url, u.nome, q.criada_em
+    ORDER BY q.nivel_dificuldade, q.id;
+
+-- PROCEDURES
+DELIMITER $$
+
+-- Procedure: atualiza o desempenho consolidado do aluno após cada partida
+CREATE PROCEDURE sp_atualizar_desempenho(IN p_id_aluno INT)
+BEGIN
+    DECLARE v_total_partidas INT;
+    DECLARE v_total_acertos INT;
+    DECLARE v_total_erros INT;
+    DECLARE v_percentual DOUBLE;
+    DECLARE v_nivel_medio ENUM('FACIL', 'MEDIO', 'DIFICIL');  -- CORREÇÃO: tipo correto
+
+    -- Calcula os totais com base nas partidas finalizadas
+    SELECT
+        COUNT(DISTINCT p.id),
+        SUM(CASE WHEN r.correta = TRUE THEN 1 ELSE 0 END),
+        SUM(CASE WHEN r.correta = FALSE THEN 1 ELSE 0 END)
+    INTO v_total_partidas, v_total_acertos, v_total_erros FROM partida p INNER JOIN resposta r ON r.id_partida = p.id
+    WHERE p.id_aluno = p_id_aluno AND p.finalizada = TRUE;
+
+    -- Garante valores não nulos
+    SET v_total_partidas = IFNULL(v_total_partidas, 0);
+    SET v_total_acertos = IFNULL(v_total_acertos, 0);
+    SET v_total_erros = IFNULL(v_total_erros, 0);
+
+    -- Calcula percentual de acerto
+    IF (v_total_acertos + v_total_erros) = 0 THEN SET v_percentual = 0.0;
+    ELSE SET v_percentual = (v_total_acertos / (v_total_acertos + v_total_erros)) * 100.0;
+    END IF;
+
+    -- Define nível médio baseado no percentual
+    IF v_percentual >= 70 THEN SET v_nivel_medio = 'DIFICIL';
+    ELSEIF v_percentual >= 40 THEN SET v_nivel_medio = 'MEDIO';
+    ELSE SET v_nivel_medio = 'FACIL';
+    END IF;
+
+    -- Insere ou atualiza o desempenho (nunca inserir manualmente nesta tabela)
+    INSERT INTO desempenho (id_aluno, total_partidas, total_acertos, total_erros, percentual_acerto, nivel_medio)
+    VALUES (p_id_aluno, v_total_partidas, v_total_acertos, v_total_erros, v_percentual, v_nivel_medio)
+    ON DUPLICATE KEY UPDATE
+        total_partidas = v_total_partidas,
+        total_acertos = v_total_acertos,
+        total_erros = v_total_erros,
+        percentual_acerto = v_percentual,
+        nivel_medio = v_nivel_medio;
+END$$
+
+-- Procedure: finaliza uma partida e atualiza o desempenho do aluno
+CREATE PROCEDURE sp_finalizar_partida(IN p_id_partida INT, IN p_pontuacao INT)
+BEGIN
+    DECLARE v_id_aluno INT;
+
+    -- Busca o aluno da partida
+    SELECT id_aluno INTO v_id_aluno FROM partida WHERE id = p_id_partida;
+
+    -- Finaliza a partida
+    UPDATE partida SET finalizada = TRUE, data_hora_fim = NOW(), pontuacao = p_pontuacao WHERE id = p_id_partida;
+
+    -- Atualiza o desempenho consolidado do aluno
+    CALL sp_atualizar_desempenho(v_id_aluno);
+END$$
+
+DELIMITER ;
