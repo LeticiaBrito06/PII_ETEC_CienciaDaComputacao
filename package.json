@@ -1,0 +1,14 @@
+{
+  "name": "labquest-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix app",
+    "android": "npm run android --prefix app",
+    "ios": "npm run ios --prefix app",
+    "backend": "cd backend && .\\mvnw.cmd spring-boot:run",
+    "desktop": "cd desktop && .\\mvnw.cmd compile exec:java -Dexec.mainClass=\"aplicativo.LabQuest\"",
+    "install:app": "npm install --prefix app",
+    "install:all": "npm install && npm run install:app"
+  }
+}
