@@ -1,0 +1,42 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Backend (Spring Boot)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/mvnw
+backend/mvnw.cmd
+backend/.env
+
+# Desktop (Java Swing)
+desktop/target/
+desktop/dependency-reduced-pom.xml
+
+# Mobile (React Native / Expo)
+app/node_modules/
+app/.expo/
+app/dist/
+app/npm-debug.log*
+app/yarn-debug.log*
+app/yarn-error.log*
+
+# Flutter remnants (if any)
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.pub-cache/
+app/build/
+
+# Mobile Builds
+app/android/
+app/ios/
