@@ -1,13 +1,15 @@
 package com.labquest.backend.controller;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import javax.imageio.ImageIO;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +41,7 @@ public class PublicController {
     }
 
     @GetMapping("/images/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+    public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
         try {
             Path uploadDir = resolveUploadDir();
             Path imageFile = uploadDir.resolve("imagens").resolve(filename).normalize();
@@ -52,14 +54,24 @@ public class PublicController {
                 throw new ApiException(HttpStatus.NOT_FOUND, "Imagem nao encontrada.");
             }
 
-            Resource resource = new FileSystemResource(imageFile);
-            String contentType = Files.probeContentType(imageFile);
+            BufferedImage image = ImageIO.read(imageFile.toFile());
+
+            if (image == null) {
+                String contentType = Files.probeContentType(imageFile);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE,
+                                contentType != null ? contentType : MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                        .header(HttpHeaders.CACHE_CONTROL, "max-age=3600")
+                        .body(Files.readAllBytes(imageFile));
+            }
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", output);
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE,
-                            contentType != null ? contentType : MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE)
                     .header(HttpHeaders.CACHE_CONTROL, "max-age=3600")
-                    .body(resource);
+                    .body(output.toByteArray());
         } catch (IOException exception) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao ler a imagem.");
         }

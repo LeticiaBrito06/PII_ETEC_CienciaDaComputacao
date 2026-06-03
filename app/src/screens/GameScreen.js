@@ -236,6 +236,7 @@ export const GameScreen = ({ navigation }) => {
 
           {currentQuestion.imagemUrl && (
             <ImagemRemota
+              key={`questao-${currentQuestion.id}-${currentQuestion.imagemUrl}`}
               imagePath={currentQuestion.imagemUrl}
               style={styles.mainImage}
             />
@@ -298,6 +299,7 @@ export const GameScreen = ({ navigation }) => {
                       left={(props) =>
                         alt.imagemUrl ? (
                           <ImagemRemota
+                            key={`alternativa-${alt.id}-${alt.imagemUrl}`}
                             imagePath={alt.imagemUrl}
                             style={styles.altThumb}
                             resizeMode="cover"

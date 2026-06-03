@@ -59,8 +59,8 @@ const montarUrlsImagem = (imagePath) => {
   const filename = relativePath.split("/").pop();
 
   return [
-    `${baseUrl}/uploads/${encodedPath}`,
     `${baseUrl}/api/public/images/${codificarCaminho(filename)}`,
+    `${baseUrl}/uploads/${encodedPath}`,
   ];
 };
 

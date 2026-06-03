@@ -122,6 +122,7 @@ export const AssociationQuestion = ({
               <Card.Content style={styles.linha}>
                 {alt.imagemUrl && (
                   <ImagemRemota
+                    key={`associacao-${alt.id || index}-${alt.imagemUrl}`}
                     imagePath={alt.imagemUrl}
                     style={styles.miniatura}
                     resizeMode="cover"
