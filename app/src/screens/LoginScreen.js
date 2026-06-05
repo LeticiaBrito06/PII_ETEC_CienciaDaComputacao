@@ -53,9 +53,6 @@ export const LoginScreen = () => {
           <Text variant="headlineLarge" style={styles.title}>
             LabQuest
           </Text>
-          <Text variant="bodySmall" style={styles.subtitle}>
-            CIENCIA DA COMPUTACAO
-          </Text>
 
           <TextInput
             label="URL da API"
