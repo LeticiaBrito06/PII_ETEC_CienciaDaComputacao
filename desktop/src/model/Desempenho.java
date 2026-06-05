@@ -1,5 +1,4 @@
 package model;
-
 import model.tipos.NivelDificuldade;
 
 public class Desempenho {
@@ -9,10 +8,9 @@ public class Desempenho {
     private int totalAcertos;
     private int totalErros;
     private double percentualAcerto;
-    private DifficultyLevel nivelMedio;
+    private NivelDificuldade nivelMedio;
 
-    public Desempenho() {
-    }
+    public Desempenho() {}
 
     public Desempenho(int id, int totalPartidas, int totalAcertos, int totalErros) {
         this.id = id;
@@ -92,7 +90,7 @@ public class Desempenho {
         return nivelMedio;
     }
 
-    public void setNivelMedio(DifficultyLevel nivelMedio) {
+    public void setNivelMedio(NivelDificuldade nivelMedio) {
         this.nivelMedio = nivelMedio;
     }
 
@@ -100,6 +98,7 @@ public class Desempenho {
     public String toString() {
         return String.format(
                 "Desempenho{totalPartidas=%d, acertos=%d, erros=%d, percentual=%.1f%%, nivel=%s}",
-                totalPartidas, totalAcertos, totalErros, percentualAcerto, nivelMedio);
+                totalPartidas, totalAcertos, totalErros, percentualAcerto, nivelMedio
+        );
     }
 }
