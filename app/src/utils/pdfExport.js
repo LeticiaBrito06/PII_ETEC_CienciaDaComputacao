@@ -9,9 +9,24 @@ const limparNomeArquivo = (nomeArquivo) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9_.-]/g, "_");
 
+const adicionarTimestamp = (nomeArquivo) => {
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "");
+  const nomeLimpo = limparNomeArquivo(nomeArquivo);
+  const extensaoPdf = /\.pdf$/i;
+
+  if (extensaoPdf.test(nomeLimpo)) {
+    return nomeLimpo.replace(extensaoPdf, `_${timestamp}.pdf`);
+  }
+
+  return `${nomeLimpo}_${timestamp}.pdf`;
+};
+
 export const exportarPdf = async ({ endpoint, nomeArquivo }) => {
   const baseUrl = (api.defaults.baseURL || "").replace(/\/$/, "");
-  const arquivoLocal = limparNomeArquivo(nomeArquivo);
+  const arquivoLocal = adicionarTimestamp(nomeArquivo);
   const destino = new File(Paths.cache, arquivoLocal);
   const authorization = api.defaults.headers.common.Authorization;
 
