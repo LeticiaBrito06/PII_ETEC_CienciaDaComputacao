@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { Image, View, StyleSheet, ScrollView, Alert } from "react-native";
 import {
   Text,
   Card,
@@ -10,7 +10,10 @@ import {
 } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
 import { AssociationQuestion as AssociationQuestion } from "../components/AssociationQuestion";
-import { RemoteImage as ImagemRemota } from "../components/ImagemRemota";
+import {
+  RemoteImage as ImagemRemota,
+  montarUrlsImagem,
+} from "../components/ImagemRemota";
 import api from "../api/cliente";
 
 export const GameScreen = ({ navigation }) => {
@@ -41,23 +44,71 @@ export const GameScreen = ({ navigation }) => {
     startGame();
   }, []);
 
+  const preCarregarImagens = async (questoes) => {
+    const urls = [
+      ...new Set(
+        questoes
+          .flatMap((questao) => [
+            montarUrlsImagem(questao.imagemUrl)[0],
+
+            ...(questao.alternativas || []).map(
+              (alternativa) => montarUrlsImagem(alternativa.imagemUrl)[0],
+            ),
+          ])
+          .filter(Boolean),
+      ),
+    ];
+
+    await Promise.allSettled(
+      urls.map((url) =>
+        Promise.race([
+          Image.prefetch(url),
+
+          new Promise((resolve) => {
+            setTimeout(() => resolve(false), 4000);
+          }),
+        ]),
+      ),
+    );
+  };
+
   const startGame = async () => {
     try {
-      const questionsResp = await api.get("/api/questions");
-      const gameResp = await api.post("/api/games", {
-        studentId: user.id,
-        difficultyLevel: "FACIL",
-      });
-      setQuestions(questionsResp.data);
+      setLoading(true);
+
+      const [questionsResp, gameResp] = await Promise.all([
+        api.get("/api/questions"),
+
+        api.post("/api/games", {
+          studentId: user.id,
+          difficultyLevel: "FACIL",
+        }),
+      ]);
+
+      const questoesRecebidas = Array.isArray(questionsResp.data)
+        ? questionsResp.data
+        : [];
+
+      // Primeiro libera a tela do jogo.
+      setQuestions(questoesRecebidas);
       setGameId(gameResp.data.id);
+
+      // Pré-carrega sem bloquear a abertura do jogo.
+      preCarregarImagens(questoesRecebidas).catch((erro) => {
+        console.warn("Falha no pré-carregamento de imagens:", erro);
+      });
     } catch (err) {
-      Alert.alert("error", "Nao foi possivel iniciar o jogo.");
+      console.error(
+        "Erro ao iniciar jogo:",
+        err.response?.data || err.message || err,
+      );
+
+      Alert.alert("Erro", "Não foi possível iniciar o jogo.");
       navigation.goBack();
     } finally {
       setLoading(false);
     }
   };
-
   const handleAnswer = (correta, idAlt = null) => {
     if (showFeedback) return;
 
@@ -236,7 +287,6 @@ export const GameScreen = ({ navigation }) => {
 
           {currentQuestion.imagemUrl && (
             <ImagemRemota
-              key={`questao-${currentQuestion.id}-${currentQuestion.imagemUrl}`}
               imagePath={currentQuestion.imagemUrl}
               style={styles.mainImage}
             />
@@ -299,7 +349,6 @@ export const GameScreen = ({ navigation }) => {
                       left={(props) =>
                         alt.imagemUrl ? (
                           <ImagemRemota
-                            key={`alternativa-${alt.id}-${alt.imagemUrl}`}
                             imagePath={alt.imagemUrl}
                             style={styles.altThumb}
                             resizeMode="cover"

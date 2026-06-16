@@ -1,12 +1,17 @@
 import { createContext, useState, useContext } from "react";
-import { setAuthToken, setApiBaseUrl } from "../api/cliente";
+import {
+  DEFAULT_API_BASE_URL,
+  normalizeApiBaseUrl,
+  setAuthToken,
+  setApiBaseUrl,
+} from "../api/cliente";
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [baseUrl, setBaseUrl] = useState("http://172.20.10.10:8080");
+  const [baseUrl, setBaseUrl] = useState(DEFAULT_API_BASE_URL);
 
   const login = (userData, userToken) => {
     setUser(userData);
@@ -21,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateBaseUrl = (url) => {
-    const cleanUrl = url.trim().replace(/\/$/, "");
+    const cleanUrl = normalizeApiBaseUrl(url);
     setBaseUrl(cleanUrl);
     setApiBaseUrl(cleanUrl);
   };

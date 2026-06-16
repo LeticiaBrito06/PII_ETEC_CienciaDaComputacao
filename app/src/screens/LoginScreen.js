@@ -19,6 +19,11 @@ export const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleUrlChange = (value) => {
+    setUrl(value);
+    updateBaseUrl(value);
+  };
+
   const handleLogin = async () => {
     setLoading(true);
     setError("");
@@ -57,7 +62,7 @@ export const LoginScreen = () => {
           <TextInput
             label="URL da API"
             value={url}
-            onChangeText={setUrl}
+            onChangeText={handleUrlChange}
             mode="outlined"
             style={styles.input}
             placeholder="http://10.0.2.2:8080"
